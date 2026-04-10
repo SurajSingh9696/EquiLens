@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="400" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+    
+    <defs>
+        <style>
+            .blue-bg { fill: #1E4D9C; }
+            .orange-bg { fill: #EC7B30; }
+            .data-line { fill: #EE8A4C; }
+            .data-point { fill: #EC7B30; }
+            .grid-line { stroke: #D0D7E5; stroke-width: 0.5; }
+            .arrow-up { fill: #1E4D9C; }
+            .main-text-equi { fill: #1E4D9C; font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold; font-size: 56px; }
+            .main-text-lens { fill: #EC7B30; font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold; font-size: 56px; }
+            .sub-text { fill: #4D4D4D; font-family: 'Segoe UI', Arial, sans-serif; font-size: 16px; font-weight: normal; }
+        </style>
+    </defs>
+
+    <g transform="translate(100, 70)">
+        
+        <rect x="0" y="80" width="80" height="15" rx="3" class="data-line"/>
+        <rect x="0" y="105" width="80" height="15" rx="3" class="data-line"/>
+        <rect x="0" y="130" width="80" height="15" rx="3" class="data-line"/>
+
+        <rect x="230" y="80" width="80" height="15" rx="3" class="data-line"/>
+        <rect x="230" y="105" width="80" height="15" rx="3" class="data-line"/>
+        <rect x="230" y="130" width="80" height="15" rx="3" class="data-line"/>
+
+        <circle cx="155" cy="112" r="80" class="blue-bg" fill-opacity="0.1"/>
+        <path d="M 155,32 A 80,80 0 1,1 154.99,32 Z M 155, 48 A 64,64 0 1,0 155.01, 48 Z" class="blue-bg"/>
+
+        <path d="M 215, 60 A 70,70 0 0,1 215, 164" stroke="#EC7B30" stroke-width="8" fill="none"/>
+        <path d="M 95, 164 A 70,70 0 0,1 95, 60" stroke="#EC7B30" stroke-width="8" fill="none"/>
+
+        <circle cx="155" cy="112" r="56" fill="white" stroke="#1E4D9C" stroke-width="8"/>
+        
+        <g transform="translate(112, 69)">
+            <line x1="0" y1="21" x2="86" y2="21" class="grid-line"/>
+            <line x1="0" y1="43" x2="86" y2="43" class="grid-line"/>
+            <line x1="0" y1="65" x2="86" y2="65" class="grid-line"/>
+            <line x1="21" y1="0" x2="21" y2="86" class="grid-line"/>
+            <line x1="43" y1="0" x2="43" y2="86" class="grid-line"/>
+            <line x1="65" y1="0" x2="65" y2="86" class="grid-line"/>
+            
+            <circle cx="21" cy="43" r="4" class="data-point"/>
+            <circle cx="65" cy="21" r="4" class="data-point"/>
+            <circle cx="65" cy="65" r="4" class="data-point"/>
+        </g>
+        
+        <path d="M 155,75 L 140,100 L 148,100 L 148,140 L 162,140 L 162,100 L 170,100 Z" class="arrow-up"/>
+        
+        <rect x="90" y="165" width="20" height="60" rx="10" class="blue-bg" transform="rotate(45 100 195)"/>
+        
+    </g>
+
+    <g transform="translate(420, 160)">
+        <text class="main-text-equi">Equi</text>
+        <text x="125" y="0" class="main-text-lens">Lens</text>
+        
+        <text x="0" y="45" class="sub-text">
+            AI BIAS ANALYSIS &amp; FAIRNESS TOOLS
+        </text>
+    </g>
+
+</svg>

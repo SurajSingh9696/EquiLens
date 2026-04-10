@@ -24,6 +24,10 @@ export const metadata: Metadata = {
   title: "EquiLens | Unbiased AI Decision Studio",
   description:
     "Inspect datasets and AI decision models for hidden bias, fairness gaps, and actionable mitigation pathways.",
+  icons: {
+    icon: [{ url: "/logo.svg", type: "image/svg+xml" }],
+    shortcut: ["/logo.svg"],
+  },
 };
 
 export default function RootLayout({

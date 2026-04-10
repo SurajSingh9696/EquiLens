@@ -117,4 +117,3 @@ Optional but recommended:
 - Add drift tracking over time for repeated audits
 - Integrate explainability overlays (feature-level fairness attribution)
 - Connect with cloud storage + team collaboration workflows
-# EquiLens
