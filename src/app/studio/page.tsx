@@ -532,7 +532,7 @@ export default function StudioPage() {
             >
               <h2 className="text-lg font-bold text-[color:var(--color-ink)]">Dataset Ingestion</h2>
               <p className="mt-1 text-sm text-[color:var(--color-muted)]">
-                Bring your own CSV/Excel/JSON or launch an intentionally biased demographic dataset.
+                Bring your own CSV/JSON or launch an intentionally biased demographic dataset.
               </p>
 
               <label
@@ -544,13 +544,13 @@ export default function StudioPage() {
                   Upload Dataset
                 </span>
                 <span className="text-xs text-[color:var(--color-muted)]">
-                  CSV, XLSX, or JSON arrays
+                  CSV or JSON arrays
                 </span>
               </label>
               <input
                 id="datasetUpload"
                 type="file"
-                accept=".csv,text/csv,application/json,.json,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls"
+                accept=".csv,text/csv,application/json,.json"
                 className="sr-only"
                 onChange={handleFileUpload}
               />

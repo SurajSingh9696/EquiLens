@@ -60,7 +60,14 @@ export function FeatureImportanceChart({ scores, protectedAttribute }: Props) {
               border: "1px solid rgba(0,0,0,0.1)",
               boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
             }}
-            formatter={(value: number) => [`${value.toFixed(1)}% influence`, "Influence"]}
+            formatter={(value) => {
+              const numericValue = Array.isArray(value)
+                ? Number(value[0] ?? 0)
+                : Number(value ?? 0);
+              const safeValue = Number.isFinite(numericValue) ? numericValue : 0;
+
+              return [`${safeValue.toFixed(1)}% influence`, "Influence"];
+            }}
             labelStyle={{ color: "var(--color-ink)", fontWeight: 700 }}
           />
           <Bar dataKey="importance" radius={[0, 4, 4, 0]}>

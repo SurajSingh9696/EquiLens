@@ -55,10 +55,19 @@ export function BiasTimeline({ history }: Props) {
               boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
             }}
             labelStyle={{ display: "none" }}
-            formatter={(value: number, name: string, props: any) => [
-              `${value}/100 Risk Score`,
-              `Run ${props.payload.run}`,
-            ]}
+            formatter={(value, _name, item) => {
+              const numericValue = Array.isArray(value)
+                ? Number(value[0] ?? 0)
+                : Number(value ?? 0);
+              const safeValue = Number.isFinite(numericValue) ? numericValue : 0;
+              const payload = item?.payload;
+              const runLabel =
+                payload && typeof payload === "object" && "run" in payload
+                  ? String((payload as { run?: unknown }).run ?? "?")
+                  : "?";
+
+              return [`${safeValue}/100 Risk Score`, `Run ${runLabel}`];
+            }}
           />
           <Line
             type="monotone"

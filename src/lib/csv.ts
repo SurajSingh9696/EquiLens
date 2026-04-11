@@ -1,5 +1,4 @@
 import Papa from "papaparse";
-import * as XLSX from "xlsx";
 import type { DataRow, RawValue } from "@/lib/types";
 import { normalizeToken } from "@/lib/utils";
 
@@ -199,28 +198,9 @@ export async function parseDatasetFile(file: File): Promise<ParsedCsv> {
   }
 
   if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
-    const arrayBuffer = await file.arrayBuffer();
-    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-    const firstSheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[firstSheetName];
-    const data = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet);
-    
-    if (data.length === 0) throw new Error("Excel file is empty.");
-    
-    const headers = Object.keys(data[0]);
-    const rows = data.map((row) => {
-      const normalized: DataRow = {};
-      for (const header of headers) {
-        normalized[header] = normalizeCell(row[header]);
-      }
-      return normalized;
-    }).filter(row => !isRowEmpty(row, headers));
-    
-    if (rows.length === 0) {
-      throw new Error("No usable rows were found in the Excel file.");
-    }
-
-    return { headers, rows };
+    throw new Error(
+      "Excel uploads are disabled due to an unpatched dependency vulnerability. Convert the file to CSV or JSON and upload again."
+    );
   }
 
   const textContent = await file.text();
