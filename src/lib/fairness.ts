@@ -10,6 +10,7 @@ import type {
   Severity,
 } from "@/lib/types";
 import { clamp, formatPercent, formatRatio, normalizeToken } from "@/lib/utils";
+import { calculateFeatureImportance } from "@/lib/xai";
 
 interface MutableGroupStat {
   total: number;
@@ -705,5 +706,6 @@ export function runFairnessAudit(rows: DataRow[], config: AuditConfig): AuditRes
     biasFlags,
     analysisNotes,
     quickSummary,
+    featureImportance: calculateFeatureImportance(sanitizedRows, config),
   };
 }

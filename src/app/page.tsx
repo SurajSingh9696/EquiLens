@@ -143,13 +143,37 @@ export default function Home() {
           </article>
 
           <article className="glass-panel p-6 md:p-7">
-            <p className="section-kicker">Why It Matters</p>
+            <p className="section-kicker">Social Impact & SDG Alignment</p>
             <h3 className="display-title mt-2 text-3xl font-extrabold text-[color:var(--color-ink)]">
-              Responsible AI for high-stakes decisions
+              Building a Fairer World
             </h3>
             <p className="mt-4 text-sm leading-relaxed text-[color:var(--color-muted)] md:text-base">
-              Hiring, lending, and care decisions should not inherit decades of historical bias. EquiLens helps teams prove fairness readiness with transparent metrics and clear risk communication.
+              Hiring, lending, and care decisions shouldn't inherit decades of historical bias. EquiLens directly supports the United Nations Sustainable Development Goals:
             </p>
+            
+            <ul className="mt-4 space-y-3">
+              <li className="flex items-start gap-3 rounded-xl bg-green-50/50 p-3 ring-1 ring-green-900/10">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-600 text-sm font-bold text-white shadow-sm">5</div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-green-950">Gender Equality</p>
+                  <p className="mt-0.5 text-xs font-medium text-green-900">Preventing discrimination in hiring and professional advancement models.</p>
+                </div>
+              </li>
+              <li className="flex items-start gap-3 rounded-xl bg-pink-50/50 p-3 ring-1 ring-pink-900/10">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-pink-500 text-sm font-bold text-white shadow-sm">10</div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-pink-950">Reduced Inequalities</p>
+                  <p className="mt-0.5 text-xs font-medium text-pink-900">Democratizing fairness audits for loans, healthcare triage, and resource allocation.</p>
+                </div>
+              </li>
+              <li className="flex items-start gap-3 rounded-xl bg-blue-50/50 p-3 ring-1 ring-blue-900/10">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-700 text-sm font-bold text-white shadow-sm">16</div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-blue-950">Peace, Justice & Strong Institutions</p>
+                  <p className="mt-0.5 text-xs font-medium text-blue-900">Promoting transparent and unbiased decision-making algorithms across public sectors.</p>
+                </div>
+              </li>
+            </ul>
 
             <Link
               href="/studio"

@@ -65,6 +65,11 @@ export interface Recommendation {
   priority: RecommendationPriority;
 }
 
+export interface FeatureImportanceScore {
+  feature: string;
+  importance: number;
+}
+
 export interface AuditResult {
   profile: DatasetProfile;
   referenceGroup: string;
@@ -76,4 +81,5 @@ export interface AuditResult {
   biasFlags: string[];
   analysisNotes: string[];
   quickSummary: string;
+  featureImportance: FeatureImportanceScore[];
 }

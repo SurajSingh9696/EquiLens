@@ -16,14 +16,18 @@ import {
 import {
   getDistinctColumnValues,
   inferPositiveLabel,
-  parseCsvFile,
+  parseDatasetFile,
   suggestColumns,
   type ParsedCsv,
 } from "@/lib/csv";
 import { runFairnessAudit } from "@/lib/fairness";
 import { buildSampleDataset } from "@/lib/sample-data";
+import { TEMPLATES } from "@/lib/templates";
+import { autoFixDataset } from "@/lib/mitigation";
 import type { AuditConfig, AuditResult, DataRow } from "@/lib/types";
 import { formatPercent } from "@/lib/utils";
+import { BiasTimeline } from "@/components/bias-timeline";
+import { FeatureImportanceChart } from "@/components/feature-importance-chart";
 import { FairnessRadar } from "@/components/fairness-radar";
 import { GapHeatmap } from "@/components/gap-heatmap";
 import { GroupRateChart } from "@/components/group-rate-chart";
@@ -161,6 +165,8 @@ export default function StudioPage() {
   const [result, setResult] = useState<AuditResult | null>(null);
   const [error, setError] = useState<string>("");
   const [isRunning, setIsRunning] = useState(false);
+  const [runHistory, setRunHistory] = useState<{ run: number; score: number; timestamp: string }[]>([]);
+  const [fixLogs, setFixLogs] = useState<string[]>([]);
 
   const previewHeaders = headers.slice(0, PREVIEW_COLUMNS_LIMIT);
 
@@ -247,6 +253,8 @@ export default function StudioPage() {
 
     setResult(null);
     setError("");
+    setRunHistory([]);
+    setFixLogs([]);
   }
 
   async function handleFileUpload(event: ChangeEvent<HTMLInputElement>): Promise<void> {
@@ -257,7 +265,7 @@ export default function StudioPage() {
     }
 
     try {
-      const parsed = await parseCsvFile(file);
+      const parsed = await parseDatasetFile(file);
       applyDataset(parsed, file.name);
     } catch (uploadError) {
       setError(getErrorMessage(uploadError));
@@ -267,17 +275,11 @@ export default function StudioPage() {
     }
   }
 
-  function handleLoadSample(): void {
-    const sample = buildSampleDataset();
-    const sampleHeaders = Object.keys(sample.rows[0] ?? {});
-
-    applyDataset(
-      {
-        headers: sampleHeaders,
-        rows: sample.rows,
-      },
-      sample.fileName
-    );
+  function handleLoadTemplate(index: number): void {
+    const template = TEMPLATES[index];
+    if (!template) return;
+    
+    applyDataset(template.dataset, template.name + " (Demo)");
   }
 
   function handleProtectedChange(value: string): void {
@@ -351,9 +353,37 @@ export default function StudioPage() {
     try {
       const nextResult = runFairnessAudit(rows, config);
       setResult(nextResult);
+      setRunHistory(prev => [...prev, {
+        run: prev.length + 1,
+        score: nextResult.overallRiskScore,
+        timestamp: new Date().toISOString()
+      }]);
       setError("");
     } catch (auditError) {
       setResult(null);
+      setError(getErrorMessage(auditError));
+    } finally {
+      setIsRunning(false);
+    }
+  }
+
+  function handleAutoFixBias(): void {
+    if (!result || !canRunAudit) return;
+    setIsRunning(true);
+    try {
+      const mitigation = autoFixDataset(rows, config);
+      setRows(mitigation.newData);
+      setFixLogs(mitigation.logs);
+      
+      const nextResult = runFairnessAudit(mitigation.newData, config);
+      setResult(nextResult);
+      setRunHistory(prev => [...prev, {
+        run: prev.length + 1,
+        score: nextResult.overallRiskScore,
+        timestamp: new Date().toISOString()
+      }]);
+      setError("");
+    } catch (auditError) {
       setError(getErrorMessage(auditError));
     } finally {
       setIsRunning(false);
@@ -502,7 +532,7 @@ export default function StudioPage() {
             >
               <h2 className="text-lg font-bold text-[color:var(--color-ink)]">Dataset Ingestion</h2>
               <p className="mt-1 text-sm text-[color:var(--color-muted)]">
-                Bring your own CSV or launch an intentionally biased demo dataset.
+                Bring your own CSV/Excel/JSON or launch an intentionally biased demographic dataset.
               </p>
 
               <label
@@ -511,28 +541,33 @@ export default function StudioPage() {
               >
                 <UploadCloud className="h-5 w-5 text-[color:var(--color-accent)]" />
                 <span className="text-sm font-semibold text-[color:var(--color-ink)]">
-                  Upload CSV Dataset
+                  Upload Dataset
                 </span>
                 <span className="text-xs text-[color:var(--color-muted)]">
-                  Required columns: protected group + outcome. Optional: prediction.
+                  CSV, XLSX, or JSON arrays
                 </span>
               </label>
               <input
                 id="datasetUpload"
                 type="file"
-                accept=".csv,text/csv"
+                accept=".csv,text/csv,application/json,.json,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xls"
                 className="sr-only"
                 onChange={handleFileUpload}
               />
 
-              <button
-                type="button"
-                onClick={handleLoadSample}
-                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-black/10 bg-[color:var(--color-sand)] px-4 py-2.5 text-sm font-semibold text-[color:var(--color-ink)] transition hover:-translate-y-0.5"
-              >
-                <FlaskConical className="h-4 w-4" />
-                Load Challenge Demo Data
-              </button>
+              <div className="mt-3 grid gap-2">
+                {TEMPLATES.map((tpl, i) => (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    onClick={() => handleLoadTemplate(i)}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-black/10 bg-[color:var(--color-sand)] px-4 py-2.5 text-sm font-semibold text-[color:var(--color-ink)] transition hover:-translate-y-0.5"
+                  >
+                    <FlaskConical className="h-4 w-4" />
+                    Load {tpl.name}
+                  </button>
+                ))}
+              </div>
 
               <div className="mt-4 rounded-2xl border border-black/10 bg-white/75 p-3 text-xs text-[color:var(--color-muted)]">
                 <p className="font-semibold text-[color:var(--color-ink)]">Current Dataset</p>
@@ -802,19 +837,36 @@ export default function StudioPage() {
                   </article>
                 </section>
 
-                <section className="glass-panel p-5">
-                  <h3 className="text-lg font-bold text-[color:var(--color-ink)]">
-                    Group Gap Matrix
-                  </h3>
-                  <p className="mt-1 text-sm text-[color:var(--color-muted)]">
-                    Direct gap comparison against reference group <b>{result.referenceGroup}</b>.
-                  </p>
-                  <div className="mt-4">
-                    <GapHeatmap
-                      rows={result.groupComparisons}
-                      referenceGroup={result.referenceGroup}
-                    />
-                  </div>
+                <section className="grid gap-6 xl:grid-cols-2">
+                  <article className="glass-panel p-5">
+                    <h3 className="text-lg font-bold text-[color:var(--color-ink)]">
+                      Group Gap Matrix
+                    </h3>
+                    <p className="mt-1 text-sm text-[color:var(--color-muted)]">
+                      Direct gap comparison against reference group <b>{result.referenceGroup}</b>.
+                    </p>
+                    <div className="mt-4">
+                      <GapHeatmap
+                        rows={result.groupComparisons}
+                        referenceGroup={result.referenceGroup}
+                      />
+                    </div>
+                  </article>
+
+                  <article className="glass-panel p-5">
+                    <h3 className="text-lg font-bold text-[color:var(--color-ink)]">
+                      Explainable AI (Mocked SHAP)
+                    </h3>
+                    <p className="mt-1 text-sm text-[color:var(--color-muted)]">
+                      Feature importance score indicating influence on the model decision outcome.
+                    </p>
+                    <div className="mt-4">
+                      <FeatureImportanceChart 
+                        scores={result.featureImportance || []} 
+                        protectedAttribute={config.protectedAttribute}
+                      />
+                    </div>
+                  </article>
                 </section>
 
                 <section className="glass-panel p-5">
@@ -866,6 +918,43 @@ export default function StudioPage() {
                       ))}
                     </ul>
                   </div>
+                </section>
+
+                <section className="glass-panel p-5">
+                  <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                    <div>
+                      <h3 className="text-lg font-bold text-[color:var(--color-ink)]">
+                        Bias Timeline & Auto-Correction
+                      </h3>
+                      <p className="mt-1 text-sm text-[color:var(--color-muted)]">
+                        Track your fairness score across multiple iterations and automatically apply algorithmic debiasing.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAutoFixBias}
+                      disabled={isRunning}
+                      className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      Auto Fix Bias
+                    </button>
+                  </div>
+                  <div className="mt-6">
+                    <BiasTimeline history={runHistory} />
+                  </div>
+                  {fixLogs.length > 0 && (
+                    <div className="mt-4 rounded-xl border border-indigo-200 bg-indigo-50 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-800">
+                        Mitigation Summary
+                      </p>
+                      <ul className="mt-2 space-y-1 text-sm text-indigo-900">
+                        {fixLogs.map((log, i) => (
+                          <li key={i}>- {log}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </section>
               </motion.div>
             ) : (
